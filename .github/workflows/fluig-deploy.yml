@@ -1,0 +1,80 @@
+# Nome exibido na aba Actions do GitHub e nos checks das PRs.
+name: Fluig Deploy
+
+# Events definem em quais acontecimentos do GitHub Actions este workflow deve iniciar.
+# Neste arquivo:
+# - push: roda quando há envio de commits para o repositório, limitado pelos caminhos em `paths`
+# - pull_request: roda quando uma PR afeta esses mesmos caminhos
+# - workflow_dispatch: permite execução manual e aceita o input `dataset_paths`
+
+on:
+  push:
+    # Filtro de disparo: o workflow só começa se pelo menos um arquivo
+    # alterado no push casar com algum destes globs. Mudanças só em
+    # README.md ou docs/, por exemplo, não disparam nada.
+    #   *  casa qualquer coisa, exceto "/"
+    #   ** casa qualquer coisa, inclusive "/" (qualquer profundidade)
+    # Importante: `paths` só decide SE o workflow roda. Quais datasets vão
+    # para o Fluig é decidido no step "Descobrir datasets alterados".
+    paths:
+      - "datasets/**"
+      - "tests/**"
+      - ".github/**"
+      - "fluig.json"
+      - "package.json"
+  pull_request:
+    # Mesmo filtro para PRs. Aqui contam todos os arquivos que a PR altera
+    # em relação à branch base. Em PR só o job `test` roda (veja o `if` do deploy).
+    paths:
+      - "datasets/**"
+      - "tests/**"
+      - ".github/**"
+      - "fluig.json"
+      - "package.json"
+  # Execução manual pelo botão "Run workflow" na aba Actions.
+  # Não tem filtro de `paths`: sempre roda.
+  workflow_dispatch:
+    inputs:
+      # Campo de texto opcional exibido no formulário da execução manual.
+      # Quando preenchido, substitui a detecção automática por git diff.
+      dataset_paths:
+        description: Lista opcional de datasets, um por linha
+        required: false
+        type: string
+
+# Permissões do GITHUB_TOKEN automático, no mínimo necessário:
+# - contents: read  permite fazer checkout do código
+# - packages: read  permite ler pacotes/imagens do GitHub Packages
+# Nada aqui dá permissão de escrita no repositório.
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: roda a suíte de testes (tests/datasets.test.js).
+  # Executa em todo disparo: push em qualquer branch, PR e execução manual.
+  # ---------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
+  ## Job de testes
+  # ---------------------------------------------------------------------------
+
+## Colar aqui
+
+  # ---------------------------------------------------------------------------
+  ## Fim Job de Testes
+  # ---------------------------------------------------------------------------
+
+
+  # ---------------------------------------------------------------------------
+  # Job 2: publica no Fluig os datasets alterados.
+  # ---------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
+  ## Job de Deploy
+  # ---------------------------------------------------------------------------
+
+## Colar aqui
+  
+  # ---------------------------------------------------------------------------
+  ##Fim Job Deploy
+  # ---------------------------------------------------------------------------
