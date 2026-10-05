@@ -31,7 +31,54 @@ async function main() {
   //  CHAMADAS DE COMANDO DO FLUIG CLI
   // ---------------------------------------------------------------------------
 
-  // Cole aqui
+  // O script cria um servidor lógico e faz login no CLI antes do export
+  // para que os próximos comandos reutilizem a mesma conexão autenticada.
+  await runCli([
+    "servers",
+    "create",
+    "--server-name",
+    connection.serverName,
+    "--host",
+    connection.host,
+    ...(connection.ssl ? ["--ssl"] : []),
+    "--port",
+    connection.port,
+    "--username",
+    connection.username,
+    "--password",
+    connection.password,
+  ]);
+
+  await runCli([
+    "auth",
+    "login",
+    "--server-name",
+    connection.serverName,
+    "--username",
+    connection.username,
+    "--password",
+    connection.password,
+  ]);
+
+  for (const dataset of datasets) {
+    // O nome lógico do recurso precisa bater com o nome físico do arquivo
+    // para o CLI localizar corretamente o dataset no projeto.
+    const resourceName = path.basename(dataset, ".js");
+    console.log(`\nDeploy: ${dataset}`);
+    await runCli([
+      "export",
+      "resource",
+      "--projectPath",
+      workspace,
+      "--resourceType",
+      "dataset",
+      "--resourceName",
+      resourceName,
+      "--serverName",
+      connection.serverName,
+    ]);
+  }
+
 
   // ---------------------------------------------------------------------------
   //  FIM CHAMADAS DE COMANDO DO FLUIG CLI
@@ -53,7 +100,31 @@ async function readConfig() {
 //  METODO GET CONNECTION
 // ---------------------------------------------------------------------------
 
-// Cole aqui
+function getConnection(config) {
+  const baseUrl = process.env.FLUIG_BASE_URL?.trim();
+  const username = process.env.FLUIG_USERNAME?.trim();
+  const password = process.env.FLUIG_PASSWORD?.trim();
+
+  if (!baseUrl || !username || !password) {
+    throw new Error("Defina FLUIG_BASE_URL, FLUIG_USERNAME e FLUIG_PASSWORD.");
+  }
+
+  const url = new URL(baseUrl);
+  const baseName =
+    process.env.FLUIG_SERVER_NAME?.trim() ||
+    config.cli?.serverName ||
+    config.name ||
+    "fluig-ci";
+
+  return {
+    host: url.hostname,
+    port: url.port || (url.protocol === "https:" ? "443" : "80"),
+    ssl: url.protocol === "https:",
+    username,
+    password,
+    serverName: `${sanitize(baseName)}${process.env.GITHUB_RUN_ID ? `-${process.env.GITHUB_RUN_ID}` : ""}`,
+  };
+}
 
 // ---------------------------------------------------------------------------
 //  FIM METODO GET CONNECTION
@@ -77,7 +148,40 @@ async function resolveDatasets() {
 //  LISTAGEM DE DATASET
 // ---------------------------------------------------------------------------
 
-// Cole aqui
+async function listDatasets(dir, baseDir = dir) {
+  let entries = [];
+
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return [];
+    }
+    throw error;
+  }
+
+  const files = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      files.push(...(await listDatasets(fullPath, baseDir)));
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.endsWith(".js")) {
+      files.push(path.relative(workspace, fullPath).split(path.sep).join("/"));
+    }
+  }
+
+  return files.sort();
+}
 
 // ---------------------------------------------------------------------------
 //  FIM LISTAGEM DE DATASET
