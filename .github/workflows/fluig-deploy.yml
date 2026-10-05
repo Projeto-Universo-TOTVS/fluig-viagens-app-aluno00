@@ -107,15 +107,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Depuração: imprime no log o payload completo do evento que disparou
-      # o workflow (o mesmo objeto acessível como `github.event`). Útil para
-      # conferir campos como `before`, `after` e `created` antes do step
-      # seguinte usá-los. GITHUB_EVENT_PATH é o caminho do arquivo JSON com
-      # esse payload no runner. O payload não contém secrets, mas inclui nomes
-      # e e-mails de quem fez os commits, visíveis no log da execução.
-      - name: Mostrar payload do evento
-        run: cat "$GITHUB_EVENT_PATH"
-
       # Monta a lista de datasets a publicar e a expõe como saída do step
       # (steps.datasets.outputs.paths), usada pelos steps seguintes.
       - name: Descobrir datasets alterados
