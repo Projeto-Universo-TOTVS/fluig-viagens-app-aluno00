@@ -38,7 +38,7 @@ function createDataset(fields, constraints, sortFields) {
     ["GBR", "Reino Unido", "GB"],
     ["JPN", "Japão", "JP"],
     ["CHN", "China", "CN"],
-    ["AUS", "Austrália", "AU"],
+    // ["AUS", "Austrália", "AU"],
   ];
 
   // Adiciona cada país com ds.addRow() usando um laço for clássico.
