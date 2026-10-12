@@ -125,3 +125,5 @@ os metadados básicos e o nome-base usado pelo CLI durante o deploy.
 
 - Workflow: `.github/workflows/fluig-deploy.yml`
 - Script de deploy: `.github/scripts/fluig-resource-deploy.mjs`
+
+
