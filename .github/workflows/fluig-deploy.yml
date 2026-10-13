@@ -55,10 +55,6 @@ jobs:
   # Job 1: roda a suíte de testes (tests/datasets.test.js).
   # Executa em todo disparo: push em qualquer branch, PR e execução manual.
   # ---------------------------------------------------------------------------
-  # ---------------------------------------------------------------------------
-  ## Job de testes
-  # ---------------------------------------------------------------------------
-
   test:
     # Máquina virtual Linux fornecida pelo GitHub.
     runs-on: ubuntu-latest
@@ -77,18 +73,10 @@ jobs:
       # falhar, o comando sai com código diferente de 0 e o job falha.
       - name: Rodar testes
         run: npm test
-  # ---------------------------------------------------------------------------
-  ## Fim Job de Testes
-  # ---------------------------------------------------------------------------
-
 
   # ---------------------------------------------------------------------------
   # Job 2: publica no Fluig os datasets alterados.
   # ---------------------------------------------------------------------------
-  # ---------------------------------------------------------------------------
-  ## Job de Deploy
-  # ---------------------------------------------------------------------------
-
   deploy:
     # Só começa depois que o job `test` terminar.
     needs: test
@@ -215,7 +203,3 @@ jobs:
             -e FLUIG_DATASET_PATHS \
             -e GITHUB_RUN_ID \
             ghcr.io/cardevisi/fluig-cli:0.1.0
-  
-  # ---------------------------------------------------------------------------
-  ##Fim Job Deploy
-  # ---------------------------------------------------------------------------

@@ -45,5 +45,8 @@ function createDataset(fields, constraints, sortFields) {
     dataset.addRow([String(e)]);
   }
 
+
+  console.log('ola')
+
   return dataset;
 }
