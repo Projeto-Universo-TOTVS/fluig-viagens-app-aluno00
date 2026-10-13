@@ -59,7 +59,7 @@ jobs:
   ## Job de testes
   # ---------------------------------------------------------------------------
 
- test:
+  test:
     # Máquina virtual Linux fornecida pelo GitHub.
     runs-on: ubuntu-latest
     # Os steps rodam dentro deste container, garantindo a mesma versão do
@@ -77,7 +77,6 @@ jobs:
       # falhar, o comando sai com código diferente de 0 e o job falha.
       - name: Rodar testes
         run: npm test
-  
   # ---------------------------------------------------------------------------
   ## Fim Job de Testes
   # ---------------------------------------------------------------------------
