@@ -27,55 +27,18 @@ async function main() {
     console.log(`- ${dataset}`);
   }
 
-  // O script cria um servidor lógico e faz login no CLI antes do export
-  // para que os próximos comandos reutilizem a mesma conexão autenticada.
-  await runCli([
-    "servers",
-    "create",
-    "--server-name",
-    connection.serverName,
-    "--host",
-    connection.host,
-    ...(connection.ssl ? ["--ssl"] : []),
-    "--port",
-    connection.port,
-    "--username",
-    connection.username,
-    "--password",
-    connection.password,
-  ]);
+  // ---------------------------------------------------------------------------
+  //  CHAMADAS DE COMANDO DO FLUIG CLI
+  // ---------------------------------------------------------------------------
 
-  await runCli([
-    "auth",
-    "login",
-    "--server-name",
-    connection.serverName,
-    "--username",
-    connection.username,
-    "--password",
-    connection.password,
-  ]);
+  // Cole aqui
 
-  for (const dataset of datasets) {
-    // O nome lógico do recurso precisa bater com o nome físico do arquivo
-    // para o CLI localizar corretamente o dataset no projeto.
-    const resourceName = path.basename(dataset, ".js");
-    console.log(`\nDeploy: ${dataset}`);
-    await runCli([
-      "export",
-      "resource",
-      "--projectPath",
-      workspace,
-      "--resourceType",
-      "dataset",
-      "--resourceName",
-      resourceName,
-      "--serverName",
-      connection.serverName,
-    ]);
-  }
+  // ---------------------------------------------------------------------------
+  //  FIM CHAMADAS DE COMANDO DO FLUIG CLI
+  // ---------------------------------------------------------------------------
+
 }
-
+  
 // Lê a configuração mínima do projeto usada para montar o nome do servidor
 // e outros parâmetros auxiliares do deploy.
 async function readConfig() {
@@ -85,31 +48,16 @@ async function readConfig() {
 
 // Monta os dados de conexão a partir das variáveis de ambiente do CI
 // e normaliza host, porta, SSL e nome do servidor.
-function getConnection(config) {
-  const baseUrl = process.env.FLUIG_BASE_URL?.trim();
-  const username = process.env.FLUIG_USERNAME?.trim();
-  const password = process.env.FLUIG_PASSWORD?.trim();
 
-  if (!baseUrl || !username || !password) {
-    throw new Error("Defina FLUIG_BASE_URL, FLUIG_USERNAME e FLUIG_PASSWORD.");
-  }
+// ---------------------------------------------------------------------------
+//  METODO GET CONNECTION
+// ---------------------------------------------------------------------------
 
-  const url = new URL(baseUrl);
-  const baseName =
-    process.env.FLUIG_SERVER_NAME?.trim() ||
-    config.cli?.serverName ||
-    config.name ||
-    "fluig-ci";
+// Cole aqui
 
-  return {
-    host: url.hostname,
-    port: url.port || (url.protocol === "https:" ? "443" : "80"),
-    ssl: url.protocol === "https:",
-    username,
-    password,
-    serverName: `${sanitize(baseName)}${process.env.GITHUB_RUN_ID ? `-${process.env.GITHUB_RUN_ID}` : ""}`,
-  };
-}
+// ---------------------------------------------------------------------------
+//  FIM METODO GET CONNECTION
+// ---------------------------------------------------------------------------
 
 // Permite que o pipeline faça deploy seletivo quando FLUIG_DATASET_PATHS
 // estiver preenchido; caso contrário, publica todos os datasets do projeto.
@@ -124,40 +72,16 @@ async function resolveDatasets() {
 
 // Varre recursivamente a pasta datasets e devolve caminhos relativos,
 // que são os formatos esperados pelo restante do script.
-async function listDatasets(dir, baseDir = dir) {
-  let entries = [];
 
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return [];
-    }
-    throw error;
-  }
+// ---------------------------------------------------------------------------
+//  LISTAGEM DE DATASET
+// ---------------------------------------------------------------------------
 
-  const files = [];
+// Cole aqui
 
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-
-    if (entry.isDirectory()) {
-      files.push(...(await listDatasets(fullPath, baseDir)));
-      continue;
-    }
-
-    if (entry.isFile() && entry.name.endsWith(".js")) {
-      files.push(path.relative(workspace, fullPath).split(path.sep).join("/"));
-    }
-  }
-
-  return files.sort();
-}
+// ---------------------------------------------------------------------------
+//  FIM LISTAGEM DE DATASET
+// ---------------------------------------------------------------------------
 
 // Aceita lista manual separada por quebra de linha ou vírgula,
 // mantendo apenas caminhos válidos de datasets JavaScript.
